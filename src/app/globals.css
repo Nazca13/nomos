@@ -1,26 +1,127 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* ── Monochrome Palette ──────────────────────────────────────────────── */
+  --color-background: #000000;
+  --color-surface: #0a0a0a;
+  --color-card: #111111;
+  --color-card-hover: #161616;
+  --color-border: #1c1c1e;
+  --color-border-hover: #2c2c2e;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Text */
+  --color-foreground: #ffffff;
+  --color-secondary: #8e8e93;
+  --color-tertiary: #48484a;
+  --color-quaternary: #2c2c2e;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Semantic */
+  --color-positive: #30d158;
+  --color-negative: #ff453a;
+  --color-warning: #ffd60a;
+  --color-accent: #ffffff;
+
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), 'SF Mono', ui-monospace, monospace;
+
+  /* ── Mobile tokens ───────────────────────────────────────────────────── */
+  --nav-height: 56px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ── Easing ──────────────────────────────────────────────────────────── */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-in: fade-in 0.3s var(--ease-spring) both;
+  --animate-slide-up: slide-up 0.35s var(--ease-spring) both;
+  --animate-scale-in: scale-in 0.2s var(--ease-spring) both;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Base ──────────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    background: #000;
+    color: #fff;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background: #000;
+    color: #fff;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :focus-visible {
+    outline: 1px solid #3a3a3c;
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Hide scrollbars everywhere — mobile app feel */
+  ::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
+}
+
+/* ── Utilities ─────────────────────────────────────────────────────────── */
+@layer utilities {
+  .font-financial {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    letter-spacing: -0.02em;
+  }
+
+  .text-positive { color: var(--color-positive); }
+  .text-negative { color: var(--color-negative); }
+  .text-warning { color: var(--color-warning); }
+
+  .safe-bottom {
+    padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, #111 25%, #1c1c1e 50%, #111 75%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
 }

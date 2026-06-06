@@ -1,0 +1,74 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String
+  createdAt    DateTime      @default(now())
+  accounts     Account[]
+  transactions Transaction[]
+  budgets      Budget[]
+  aiInsights   AiInsight[]
+}
+
+model Account {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String        // Contoh: "BCA", "Gopay", "Cash"
+  type         String        // BANK, EWALLET, CASH
+  balance      Float         @default(0.0)
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  amount      Float
+  type        String   // INCOME, EXPENSE
+  category    String   // Food, Transport, Utilities, dll.
+  description String
+  rawPrompt   String?  // Menyimpan teks asli dari user jika input lewat AI Chat
+  timestamp   DateTime @default(now())
+
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([userId, category])
+}
+
+model Budget {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String
+  limitAmount Float
+  spentAmount Float    @default(0.0)
+  period      String   // MONTHLY, WEEKLY
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+
+  @@index([userId, category])
+}
+
+model AiInsight {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // WARNING, SUGGESTION, ANOMALY
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead, createdAt(sort: Desc)])
+}
