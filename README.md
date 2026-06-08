@@ -20,7 +20,6 @@ A mobile-first PWA for tracking personal finances with an AI-powered command cen
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss)
 ![AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-6-black?style=flat-square)
 ![PWA](https://img.shields.io/badge/PWA-Ready-5A0FC8?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 </div>
 
