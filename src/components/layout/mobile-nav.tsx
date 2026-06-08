@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { LayoutDashboard, MessageSquareText, BookOpen } from 'lucide-react'
+import { LayoutDashboard, Shield, MessageSquareText, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface MobileNavProps {
@@ -10,6 +10,7 @@ interface MobileNavProps {
 
 const navItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
+  { href: '/vault', label: 'Vault', icon: Shield },
   { href: '/command-center', label: 'AI', icon: MessageSquareText },
   { href: '/ledger', label: 'Ledger', icon: BookOpen },
 ] as const
@@ -31,7 +32,7 @@ export function MobileNav({ currentPath }: MobileNavProps) {
             <Link
               key={href}
               href={href}
-              className="relative flex flex-col items-center gap-0.5 px-6 py-2"
+              className="relative flex flex-col items-center gap-0.5 px-4 py-2"
             >
               {/* Active pill indicator */}
               {isActive && (

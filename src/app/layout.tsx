@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { TransactionProvider } from '@/lib/transaction-store'
+import { SubscriptionProvider } from '@/lib/subscription-store'
 import { AppShell } from '@/components/layout/app-shell'
 import './globals.css'
 
@@ -48,7 +49,9 @@ export default function RootLayout({
     >
       <body className="min-h-dvh bg-black text-white antialiased">
         <TransactionProvider>
-          <AppShell>{children}</AppShell>
+          <SubscriptionProvider>
+            <AppShell>{children}</AppShell>
+          </SubscriptionProvider>
         </TransactionProvider>
 
         <Toaster

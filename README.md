@@ -33,28 +33,26 @@ NOMOS is a **mobile-first Progressive Web App** that serves as a personal financ
 
 ## Features
 
-### Command Center (AI Chat)
-- Natural language transaction input in Bahasa Indonesia
-- Fuzzy input tolerance — typos and slang are normalized automatically
-- AI extracts: amount, type, account, category, description
-- Confirmation draft card before any data is saved
-- Real-time streaming response
+### Command Center (AI Chat & Vision OCR Scanner)
+- **Natural Language Parsing**: Type transactions in natural language (Bahasa Indonesia).
+- **NOMOS Vision Module (AI OCR)**: Upload or take photos of receipts, invoices, or banking screenshots. The `google/gemini-2.5-flash` model parses details directly into structured transaction drafts.
+- **Dynamic Draft Card**: Confirmation UI is rendered instantly from OCR or chat response before committing to the ledger.
+- **Air-Gapped Protocol**: Full offline recording support. Features a client-side regex command parser fallback when offline, saving inputs in local sync queues.
 
-### Dashboard
-- **Vault Widget** — Total balance across all accounts with a 7-day sparkline
-- **Budget Radar** — Per-category spending progress against budget limits
-- **Cashflow Matrix** — 6-month income vs. expense bar chart
+### The Vault (Net Worth Aggregator)
+- **Net Worth Aggregator**: Consolidate liquid cash from bank ledgers and custom assets (e.g. Gold, Crypto, Mutual Funds, Physical Assets) to track total wealth.
+- **AI Portfolio Advisor**: Real-time evaluation of asset allocation with terminal-vibe advice on diversification and risk exposure.
+- **Subscription Manager**: Set up recurring billing cycles (e.g. Netflix, Spotify, Internet) with auto-execution on due dates.
 
-### Ledger
-- Full transaction history with chronological grouping
-- Tap-to-detail bottom sheet for individual transactions
-- Manual "Add Transaction" form with category and account selection
-- Delete individual transactions
+### AI Automated Audit Node
+- **Anomaly Detection**: Scans transactions in the background to identify abnormal category spikes, outlying transactions, or micro-transaction subscription leaks.
+- **Audit Console Logs**: High-fidelity terminal-styled security console on the dashboard displaying warnings and health flags.
 
-### PWA
-- Installable on Android & iOS (Add to Home Screen)
-- Offline-capable shell via Service Worker
-- Optimized for 430px mobile viewport
+### Dashboard & Smart Ledger
+- **Vault Widget** — Total balance across all accounts with a 7-day sparkline.
+- **Budget Radar** — Progress tracking of spending against category limits.
+- **Cashflow Matrix** — 6-month visual bar chart comparing income vs. expenses.
+- **Ledger** — Chronological audit trail with manual overrides and detail cards.
 
 ---
 
@@ -65,14 +63,14 @@ NOMOS is a **mobile-first Progressive Web App** that serves as a personal financ
 | Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS v4 — vanilla CSS variables, no utility bloat |
-| AI Runtime | Vercel AI SDK 6 — `streamText`, `streamProtocol: 'text'` |
-| LLM Provider | OrcaRouter — Qwen 3.5 35B A3B |
-| State | React Context + `localStorage` (`nomos_transactions_v1`) |
+| AI Runtime | Vercel AI SDK 6 — `streamText`, `generateText` |
+| LLM Provider | OrcaRouter — Qwen 3.5 (Chat), Gemini 2.5 Flash (Vision OCR) |
+| State | React Context + LocalStorage (Transactions & Subscriptions) |
 | Icons | Lucide React |
 | Charts | Recharts |
 | Toast | Sonner |
 | PWA | `@ducanh2912/next-pwa` |
-| ORM | Prisma + PostgreSQL *(configured, not yet active)* |
+| ORM | Prisma + PostgreSQL *(configured, database-ready)* |
 
 ---
 
@@ -183,7 +181,7 @@ All financial data is stored in `localStorage` under the key `nomos_transactions
 - [ ] Search & Filter in Ledger
 - [ ] Custom budget goal limits
 - [ ] AI spending insights ("Analisis bulan ini")
-- [ ] Recurring transaction reminders
+- [x] Recurring transaction reminders
 - [ ] Cloud sync via Prisma + PostgreSQL
 - [ ] PWA push notifications for budget alerts
 

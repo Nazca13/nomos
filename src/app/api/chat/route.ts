@@ -5,7 +5,7 @@ const orcarouter = createOpenAI({
   baseURL: 'https://api.orcarouter.ai/v1',
   apiKey: process.env.ORCAROUTER_API_KEY!,
   compatibility: 'compatible',
-})
+} as any)
 
 export const maxDuration = 30
 
