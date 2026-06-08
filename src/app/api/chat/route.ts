@@ -1,68 +1,39 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { streamText, tool } from 'ai'
-import { z } from 'zod'
+import { streamText } from 'ai'
 
-// OrcaRouter client pointing to Qwen 3.5 35B
 const orcarouter = createOpenAI({
   baseURL: 'https://api.orcarouter.ai/v1',
   apiKey: process.env.ORCAROUTER_API_KEY!,
   compatibility: 'compatible',
 })
 
-// Allow streaming responses up to 30 seconds
 export const maxDuration = 30
 
 export async function POST(req: Request) {
   const { messages } = await req.json()
 
   const result = streamText({
-    model: orcarouter('qwen/qwen3.5-35b-a3b'),
-    system: `Kamu adalah NOMOS AI, asisten keuangan pribadi yang kaku, efisien, dan presisi.
-Tugas utamamu adalah mendeteksi transaksi keuangan dari chat pengguna.
-Jika pengguna memasukkan data transaksi (pemasukan atau pengeluaran), kamu WAJIB menggunakan tool 'trackTransaction'.
-Jika obrolan biasa, balas dengan singkat dan profesional bergaya terminal tech.
-Selalu jawab dalam Bahasa Indonesia.`,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: orcarouter('qwen/qwen3.5-35b-a3b') as any,
+    system: `Kamu adalah NOMOS AI, asisten keuangan personal. Gaya terminal — ringkas, langsung, tidak bertele-tele. Bukan robot dingin, tapi juga tidak basa-basi berlebihan.
+
+RULES:
+1. SAPAAN & BASA-BASI RINGAN: Boleh dibalas singkat dan ramah. Contoh: "Halo" → balas "Halo! Ada transaksi yang mau dicatat?"
+2. TOPIK KEUANGAN: Transaksi, saldo, budget, akun dompet — tangani sepenuhnya.
+3. TOPIK DI LUAR KEUANGAN: Balas dengan nada santai tapi tegas. Contoh: "Maaf, NOMOS hanya bisa bantu urusan keuangan kamu. Mau catat transaksi?"
+4. TYPO & SLANG: Normalisasi otomatis (bcaaa→BCA, gofay→Gopay). Ekstrak entitas finansial dari kalimat berbelit.
+
+FORMAT BLOK TRANSAKSI (wajib jika ada transaksi terdeteksi):
+[TX:{"amount":50000,"type":"EXPENSE","account":"Gopay","category":"Food","description":"Beli kopi"}]
+
+Aturan blok TX:
+- type: hanya "INCOME" atau "EXPENSE"
+- amount: angka murni tanpa simbol
+- Letakkan di akhir respons, satu baris
+
+OUTPUT: Bahasa Indonesia, singkat, tidak kaku.`,
     messages,
-    tools: {
-      trackTransaction: tool({
-        description:
-          'Mencatat transaksi keuangan baik pemasukan maupun pengeluaran',
-        parameters: z.object({
-          amount: z
-            .number()
-            .describe('Nominal uang dalam angka saja, contoh: 50000'),
-          type: z
-            .enum(['INCOME', 'EXPENSE'])
-            .describe(
-              'Jenis transaksi: INCOME (pemasukan) atau EXPENSE (pengeluaran)'
-            ),
-          account: z
-            .string()
-            .describe(
-              'Nama akun/dompet yang digunakan, contoh: BCA, Gopay, Cash'
-            ),
-          category: z
-            .string()
-            .describe(
-              'Kategori logis seperti Food, Transport, Utilities, Entertainment, Gadget'
-            ),
-          description: z
-            .string()
-            .describe(
-              'Deskripsi singkat transaksi, contoh: Beli kopi Starbucks'
-            ),
-        }),
-        execute: async (args) => {
-          // TODO: Connect to Prisma database for real persistence
-          // For now, return draft data for UI confirmation card
-          return {
-            status: 'draft',
-            data: args,
-          }
-        },
-      }),
-    },
   })
 
-  return result.toDataStreamResponse()
+  return result.toTextStreamResponse()
 }

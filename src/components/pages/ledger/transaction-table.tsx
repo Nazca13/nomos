@@ -3,34 +3,30 @@
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
 import { CurrencyDisplay } from '@/components/shared/currency-display'
 import { formatDate } from '@/lib/utils'
-
-export interface TransactionRow {
-  id: string
-  description: string
-  amount: number
-  type: 'INCOME' | 'EXPENSE'
-  category: string
-  accountName: string
-  timestamp: string
-  rawPrompt?: string | null
-}
+import { type Transaction } from '@/lib/transaction-store'
 
 interface TransactionTableProps {
-  data: TransactionRow[]
+  data: Transaction[]
+  onRowClick?: (tx: Transaction) => void
 }
 
-export function TransactionTable({ data }: TransactionTableProps) {
+export function TransactionTable({ data, onRowClick }: TransactionTableProps) {
   if (data.length === 0) return null
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-0.5">
       {data.map((tx) => (
-        <div
+        <button
           key={tx.id}
-          className="flex items-center gap-3 rounded-2xl p-3 transition-colors active:bg-[var(--color-card)]"
+          onClick={() => onRowClick?.(tx)}
+          className="flex w-full items-center gap-3 rounded-2xl p-3 text-left transition-colors active:bg-[var(--color-card)]"
         >
           {/* Icon */}
-          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${tx.type === 'INCOME' ? 'bg-[var(--color-positive)]/10' : 'bg-white/[0.04]'}`}>
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+              tx.type === 'INCOME' ? 'bg-[var(--color-positive)]/10' : 'bg-white/[0.04]'
+            }`}
+          >
             {tx.type === 'INCOME' ? (
               <ArrowDownLeft className="h-4 w-4 text-[var(--color-positive)]" />
             ) : (
@@ -60,7 +56,7 @@ export function TransactionTable({ data }: TransactionTableProps) {
               {formatDate(tx.timestamp)}
             </span>
           </div>
-        </div>
+        </button>
       ))}
     </div>
   )

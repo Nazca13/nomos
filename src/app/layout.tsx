@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { Toaster } from 'sonner'
+import { TransactionProvider } from '@/lib/transaction-store'
 import { AppShell } from '@/components/layout/app-shell'
 import './globals.css'
 
@@ -45,7 +47,22 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh bg-black text-white antialiased">
-        <AppShell>{children}</AppShell>
+        <TransactionProvider>
+          <AppShell>{children}</AppShell>
+        </TransactionProvider>
+
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#111111',
+              border: '1px solid #1c1c1e',
+              color: '#ffffff',
+              fontSize: '13px',
+              borderRadius: '14px',
+            },
+          }}
+        />
       </body>
     </html>
   )
