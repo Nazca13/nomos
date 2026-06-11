@@ -40,7 +40,7 @@ export function TableFilters({ searchQuery, onSearchChange, typeFilter, onTypeFi
               onClick={() => onTypeFilterChange(t.value)}
               className={cn(
                 'rounded-lg px-4 py-1.5 text-[11px] font-semibold transition-all duration-200',
-                typeFilter === t.value ? 'bg-white text-black' : 'text-[var(--color-tertiary)]'
+                typeFilter === t.value ? 'bg-[var(--color-foreground)] text-[var(--color-background)]' : 'text-[var(--color-tertiary)]'
               )}
             >
               {t.label}

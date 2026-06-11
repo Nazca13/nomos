@@ -14,7 +14,7 @@ export function Input({ className, icon, ...props }: InputProps) {
       )}
       <input
         className={cn(
-          'h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-[14px] text-white placeholder:text-[var(--color-tertiary)] transition-colors duration-200',
+          'h-11 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-[14px] text-[var(--color-foreground)] placeholder:text-[var(--color-tertiary)] transition-colors duration-200',
           'focus:border-[var(--color-border-hover)] focus:outline-none',
           icon && 'pl-9',
           className

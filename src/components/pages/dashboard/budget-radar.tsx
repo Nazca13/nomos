@@ -34,7 +34,7 @@ export function BudgetRadar() {
 
   return (
     <div className="px-5">
-      <h2 className="mb-3 text-[13px] font-semibold text-white">Budget Radar</h2>
+      <h2 className="mb-3 text-[13px] font-semibold text-[var(--color-foreground)]">Budget Radar</h2>
       {!hasData && (
         <p className="mb-3 text-[11px] text-[var(--color-tertiary)]">
           Catat pengeluaran untuk melihat progres budget.
@@ -50,7 +50,7 @@ export function BudgetRadar() {
               className="flex min-w-[140px] shrink-0 flex-col items-center gap-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4"
             >
               <RadialProgress value={pct} size={56} strokeWidth={4} />
-              <span className="text-[12px] font-semibold text-white">{b.category}</span>
+              <span className="text-[12px] font-semibold text-[var(--color-foreground)]">{b.category}</span>
               <span className="font-financial text-[10px] text-[var(--color-secondary)]">
                 {remaining >= 0 ? `${formatCurrency(remaining)} left` : 'Over budget'}
               </span>

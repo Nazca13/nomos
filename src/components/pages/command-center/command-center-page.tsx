@@ -15,17 +15,17 @@ export function CommandCenterPage() {
     <div className="flex flex-col animate-[fade-in_0.3s_ease]" style={{ height: 'calc(100dvh - var(--nav-height))' }}>
       {/* Header with tabs */}
       <div className="px-5 pt-14 pb-3">
-        <h1 className="text-[20px] font-bold tracking-tight text-white">Command Center</h1>
+        <h1 className="text-[20px] font-bold tracking-tight text-[var(--color-foreground)]">Command Center</h1>
         <div className="mt-3 flex gap-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-[3px]">
           <button
             onClick={() => setTab('chat')}
-            className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-all', tab === 'chat' ? 'bg-white text-black' : 'text-[var(--color-tertiary)]')}
+            className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-all', tab === 'chat' ? 'bg-[var(--color-foreground)] text-[var(--color-background)]' : 'text-[var(--color-tertiary)]')}
           >
             <MessageSquareText className="h-3.5 w-3.5" /> Chat
           </button>
           <button
             onClick={() => setTab('canvas')}
-            className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-all', tab === 'canvas' ? 'bg-white text-black' : 'text-[var(--color-tertiary)]')}
+            className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-semibold transition-all', tab === 'canvas' ? 'bg-[var(--color-foreground)] text-[var(--color-background)]' : 'text-[var(--color-tertiary)]')}
           >
             <TrendingUp className="h-3.5 w-3.5" /> Proyeksi
           </button>

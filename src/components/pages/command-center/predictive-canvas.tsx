@@ -26,7 +26,7 @@ export function PredictiveCanvas() {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--color-tertiary)]">Saldo Saat Ini</span>
-            <p className="font-financial text-[20px] font-bold text-white">{formatCurrency(BAL)}</p>
+            <p className="font-financial text-[20px] font-bold text-[var(--color-foreground)]">{formatCurrency(BAL)}</p>
           </div>
           <span className={`font-financial text-[12px] font-bold ${projEnd >= BAL ? 'text-positive' : 'text-negative'}`}>
             {projEnd >= BAL ? '+' : ''}{change}%
@@ -45,7 +45,7 @@ export function PredictiveCanvas() {
         <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-tertiary)]">AI Insights</span>
         {INSIGHTS.map((ins, i) => (
           <div key={i} className="flex items-start gap-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-3">
-            <AlertCircle className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${ins.type === 'warning' ? 'text-[var(--color-warning)]' : 'text-white'}`} />
+            <AlertCircle className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${ins.type === 'warning' ? 'text-[var(--color-warning)]' : 'text-[var(--color-foreground)]'}`} />
             <span className="text-[12px] leading-relaxed text-[var(--color-secondary)]">{ins.msg}</span>
           </div>
         ))}

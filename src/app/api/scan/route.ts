@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
 
     const result = await generateText({
-      model: orcarouter('google/gemini-2.5-flash') as any,
+      model: orcarouter.chatModel('google/gemini-2.5-flash') as any,
       system: `Kamu adalah NOMOS OCR Engine. Deteksi dan ekstrak detail transaksi dari gambar struk, nota, atau screenshot mutasi bank.
 
 Kembalikan informasi tersebut DALAM SATU BARIS FORMAT MARKER BERIKUT SAJA (jangan ada penjelasan lain):

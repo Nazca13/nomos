@@ -16,7 +16,7 @@ const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Transfer', 'Investment', 'Bon
 const ACCOUNTS = ['BCA', 'Mandiri', 'BNI', 'BRI', 'Gopay', 'OVO', 'Dana', 'ShopeePay', 'Cash']
 
 export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps) {
-  const { addTransaction } = useTransactions()
+  const { addTransaction, totalBalance } = useTransactions()
   const [type, setType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -46,6 +46,14 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
       toast.error('Lengkapi semua field')
       return
     }
+
+    if (type === 'EXPENSE' && parsedAmount > totalBalance) {
+      toast.error('Saldo Tidak Cukup!', {
+        description: `Saldo (Rp ${totalBalance.toLocaleString('id-ID')}) kurang untuk transaksi ini.`
+      })
+      return
+    }
+
     setIsSubmitting(true)
     await new Promise((r) => setTimeout(r, 300)) // micro-delay for UX
     addTransaction({
@@ -86,7 +94,7 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
                 'flex-1 rounded-lg py-2.5 text-[12px] font-bold transition-all duration-200',
                 type === t
                   ? t === 'EXPENSE'
-                    ? 'bg-[var(--color-negative)]/90 text-white'
+                    ? 'bg-[var(--color-negative)]/90 text-[var(--color-background)]'
                     : 'bg-[var(--color-positive)]/90 text-black'
                   : 'text-[var(--color-tertiary)]'
               )}
@@ -109,7 +117,7 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
               value={displayAmount}
               onChange={(e) => handleAmountChange(e.target.value)}
               placeholder="0"
-              className="flex-1 bg-transparent font-financial text-[20px] font-bold text-white focus:outline-none placeholder:text-[var(--color-quaternary)]"
+              className="flex-1 bg-transparent font-financial text-[20px] font-bold text-[var(--color-foreground)] focus:outline-none placeholder:text-[var(--color-quaternary)]"
               required
             />
           </div>
@@ -125,7 +133,7 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Contoh: Makan siang Padang"
-            className="mt-1 w-full bg-transparent text-[14px] text-white placeholder:text-[var(--color-quaternary)] focus:outline-none"
+            className="mt-1 w-full bg-transparent text-[14px] text-[var(--color-foreground)] placeholder:text-[var(--color-quaternary)] focus:outline-none"
             required
           />
         </div>
@@ -144,7 +152,7 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
                 className={cn(
                   'rounded-xl px-3 py-1.5 text-[11px] font-semibold transition-all',
                   category === c
-                    ? 'bg-white text-black'
+                    ? 'bg-[var(--color-foreground)] text-[var(--color-background)]'
                     : 'border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-secondary)]'
                 )}
               >
@@ -168,7 +176,7 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
                 className={cn(
                   'rounded-xl px-3 py-1.5 text-[11px] font-semibold transition-all',
                   account === a
-                    ? 'bg-white text-black'
+                    ? 'bg-[var(--color-foreground)] text-[var(--color-background)]'
                     : 'border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-secondary)]'
                 )}
               >
@@ -182,7 +190,7 @@ export function AddTransactionSheet({ open, onClose }: AddTransactionSheetProps)
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center rounded-2xl bg-white py-4 text-[14px] font-bold text-black transition-opacity disabled:opacity-50"
+          className="flex w-full items-center justify-center rounded-2xl bg-[var(--color-foreground)] py-4 text-[14px] font-bold text-[var(--color-background)] transition-opacity disabled:opacity-50"
         >
           {isSubmitting ? 'Menyimpan...' : 'Simpan Transaksi'}
         </button>

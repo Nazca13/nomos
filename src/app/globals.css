@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
-  /* ── Monochrome Palette ──────────────────────────────────────────────── */
+  /* ── Dark Mode Palette (default) ─────────────────────────────────────── */
   --color-background: #000000;
   --color-surface: #0a0a0a;
   --color-card: #111111;
@@ -74,25 +74,26 @@
   }
 
   html {
-    background: #000;
-    color: #fff;
+    background: var(--color-background);
+    color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-size-adjust: 100%;
     overscroll-behavior: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
-    background: #000;
-    color: #fff;
+    background: var(--color-background);
+    color: var(--color-foreground);
     min-height: 100dvh;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
   :focus-visible {
-    outline: 1px solid #3a3a3c;
+    outline: 1px solid var(--color-border-hover);
     outline-offset: 2px;
   }
 
@@ -123,7 +124,7 @@
   }
 
   .skeleton-shimmer {
-    background: linear-gradient(90deg, #111 25%, #1c1c1e 50%, #111 75%);
+    background: linear-gradient(90deg, var(--color-card) 25%, var(--color-border) 50%, var(--color-card) 75%);
     background-size: 200% 100%;
     animation: var(--animate-shimmer);
   }

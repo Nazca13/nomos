@@ -49,7 +49,7 @@ export function BottomSheet({ open, onClose, title, children, className }: Botto
           {/* Header */}
           {title && (
             <div className="flex items-center justify-between px-5 pb-2 pt-1">
-              <h2 className="text-[17px] font-bold tracking-tight text-white">{title}</h2>
+              <h2 className="text-[17px] font-bold tracking-tight text-[var(--color-foreground)]">{title}</h2>
               <button
                 onClick={onClose}
                 className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-secondary)] transition-opacity active:opacity-60"

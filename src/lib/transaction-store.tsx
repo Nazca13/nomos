@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react'
+import { getTransactions, createTransaction, deleteTransaction as deleteDbTransaction } from '@/app/actions'
 
 export interface Transaction {
   id: string
@@ -50,37 +51,41 @@ interface TransactionContextValue {
 
 const TransactionContext = createContext<TransactionContextValue | null>(null)
 
-const STORAGE_KEY = 'nomos_transactions_v1'
-
 export function TransactionProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { transactions: [] })
 
-  // Hydrate from localStorage once
+  // Hydrate from DB once
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) dispatch({ type: 'HYDRATE', payload: JSON.parse(raw) })
-    } catch {}
+    async function fetchTxs() {
+      try {
+        const data = await getTransactions()
+        const mapped = data.map(t => ({ ...t, timestamp: new Date(t.timestamp).toISOString() }))
+        dispatch({ type: 'HYDRATE', payload: mapped as any })
+      } catch (e) {
+        console.error('Failed to load txs', e)
+      }
+    }
+    fetchTxs()
   }, [])
-
-  // Persist on every change
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.transactions))
-    } catch {}
-  }, [state.transactions])
 
   const addTransaction = (tx: Omit<Transaction, 'id' | 'timestamp'>): Transaction => {
     const full: Transaction = {
       ...tx,
-      id: crypto.randomUUID(),
+      id: crypto.randomUUID(), // optimistic ID
       timestamp: new Date().toISOString(),
     }
     dispatch({ type: 'ADD', payload: full })
+    
+    // DB
+    createTransaction(tx).catch(e => console.error('Failed to save tx', e))
+    
     return full
   }
 
-  const deleteTransaction = (id: string) => dispatch({ type: 'DELETE', payload: id })
+  const deleteTransaction = (id: string) => {
+    dispatch({ type: 'DELETE', payload: id })
+    deleteDbTransaction(id).catch(e => console.error('Failed to delete tx', e))
+  }
   const clearAll = () => dispatch({ type: 'CLEAR' })
 
   const { totalIncome, totalExpense } = state.transactions.reduce(

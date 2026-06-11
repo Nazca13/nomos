@@ -61,7 +61,7 @@ export function VaultWidget() {
         <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--color-tertiary)]">
           Total Balance
         </span>
-        <Image src="/favicon.ico" alt="NOMOS" width={20} height={20} className="rounded opacity-40" />
+        <Image src="/logo1.png" alt="NOMOS" width={20} height={20} className="rounded opacity-40" />
       </div>
 
       <div className="mt-3 flex items-end justify-between">
@@ -80,9 +80,9 @@ export function VaultWidget() {
           <p className="text-[9px] font-bold uppercase tracking-widest text-[var(--color-positive)]/70">Income</p>
           <p className="font-financial text-[13px] font-bold text-[var(--color-positive)]">{formatCurrency(totalIncome)}</p>
         </div>
-        <div className="flex-1 rounded-xl bg-white/[0.04] px-3 py-2">
+        <div className="flex-1 rounded-xl px-3 py-2" style={{ background: 'color-mix(in srgb, var(--color-foreground) 4%, transparent)' }}>
           <p className="text-[9px] font-bold uppercase tracking-widest text-[var(--color-secondary)]">Expense</p>
-          <p className="font-financial text-[13px] font-bold text-white">{formatCurrency(totalExpense)}</p>
+          <p className="font-financial text-[13px] font-bold text-[var(--color-foreground)]">{formatCurrency(totalExpense)}</p>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export function VaultWidget() {
                   {acc.name}
                 </span>
               </div>
-              <span className="font-financial text-[13px] font-bold text-white">
+              <span className="font-financial text-[13px] font-bold text-[var(--color-foreground)]">
                 {formatCurrency(acc.balance)}
               </span>
             </div>

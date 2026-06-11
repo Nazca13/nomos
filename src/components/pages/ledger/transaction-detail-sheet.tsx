@@ -15,7 +15,7 @@ function DetailRow({ label, value, mono = false }: { label: string; value: strin
   return (
     <div className="flex items-start justify-between gap-4 py-3">
       <span className="text-[12px] text-[var(--color-secondary)]">{label}</span>
-      <span className={`text-right text-[12px] font-medium text-white ${mono ? 'font-financial' : ''}`}>{value}</span>
+      <span className={`text-right text-[12px] font-medium text-[var(--color-foreground)] ${mono ? 'font-financial' : ''}`}>{value}</span>
     </div>
   )
 }
@@ -50,7 +50,7 @@ export function TransactionDetailSheet({ transaction, onClose }: TransactionDeta
       <div className="mb-5 flex flex-col items-center gap-2 py-3">
         <div
           className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
-            isIncome ? 'bg-[var(--color-positive)]/15' : 'bg-white/[0.06]'
+            isIncome ? 'bg-[var(--color-positive)]/15' : 'bg-[var(--color-foreground)]/[0.06]'
           }`}
         >
           {isIncome ? (
@@ -65,7 +65,7 @@ export function TransactionDetailSheet({ transaction, onClose }: TransactionDeta
           showSign
           size="lg"
         />
-        <p className="text-[14px] font-semibold text-white">{transaction.description}</p>
+        <p className="text-[14px] font-semibold text-[var(--color-foreground)]">{transaction.description}</p>
       </div>
 
       {/* Details */}

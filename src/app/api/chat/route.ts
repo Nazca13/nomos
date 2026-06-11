@@ -1,5 +1,17 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { streamText } from 'ai'
+import { prisma } from '@/lib/prisma'
+
+// Need a small helper to get or create the default user since we don't have AuthContext here
+async function getUserId() {
+  let user = await prisma.user.findFirst()
+  if (!user) {
+    user = await prisma.user.create({
+      data: { email: 'default@nomos.app', name: 'User' }
+    })
+  }
+  return user.id
+}
 
 const orcarouter = createOpenAI({
   baseURL: 'https://api.orcarouter.ai/v1',
@@ -11,6 +23,20 @@ export const maxDuration = 30
 
 export async function POST(req: Request) {
   const { messages } = await req.json()
+  
+  const lastMessage = messages[messages.length - 1]
+  const userId = await getUserId()
+
+  // Save user message to DB
+  if (lastMessage && lastMessage.role === 'user') {
+    await prisma.chatMessage.create({
+      data: {
+        userId,
+        role: 'user',
+        content: lastMessage.content
+      }
+    })
+  }
 
   const result = streamText({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,6 +59,16 @@ Aturan blok TX:
 
 OUTPUT: Bahasa Indonesia, singkat, tidak kaku.`,
     messages,
+    async onFinish({ text }) {
+      // Save assistant message to DB
+      await prisma.chatMessage.create({
+        data: {
+          userId,
+          role: 'assistant',
+          content: text
+        }
+      })
+    }
   })
 
   return result.toTextStreamResponse()

@@ -37,7 +37,7 @@ export function StatValue({
         </span>
       )}
       <div className="flex items-baseline gap-2">
-        <span className={cn('font-financial font-bold text-white', sizeMap[size])}>
+        <span className={cn('font-financial font-bold text-[var(--color-foreground)]', sizeMap[size])}>
           {value}
         </span>
         {trend && trendText && (

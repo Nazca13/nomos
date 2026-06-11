@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { TransactionProvider } from '@/lib/transaction-store'
 import { SubscriptionProvider } from '@/lib/subscription-store'
+import { UserProvider } from '@/lib/user-store'
 import { AppShell } from '@/components/layout/app-shell'
 import './globals.css'
 
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'NOMOS',
-  description: 'Autonomous Financial Intelligence System',
+  description: 'Catat keuangan kamu dengan mudah dan cerdas',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -44,23 +45,25 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} dark`}
       suppressHydrationWarning
     >
-      <body className="min-h-dvh bg-black text-white antialiased">
-        <TransactionProvider>
-          <SubscriptionProvider>
-            <AppShell>{children}</AppShell>
-          </SubscriptionProvider>
-        </TransactionProvider>
+      <body className="min-h-dvh antialiased" style={{ background: 'var(--color-background)', color: 'var(--color-foreground)' }}>
+        <UserProvider>
+          <TransactionProvider>
+            <SubscriptionProvider>
+              <AppShell>{children}</AppShell>
+            </SubscriptionProvider>
+          </TransactionProvider>
+        </UserProvider>
 
         <Toaster
           position="top-center"
           toastOptions={{
             style: {
-              background: '#111111',
-              border: '1px solid #1c1c1e',
-              color: '#ffffff',
+              background: 'var(--color-card)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-foreground)',
               fontSize: '13px',
               borderRadius: '14px',
             },

@@ -4,6 +4,7 @@ import { createContext, useContext, useReducer, useEffect, type ReactNode } from
 import { useTransactions } from './transaction-store'
 import { toast } from 'sonner'
 import { Bell } from 'lucide-react'
+import { getSubscriptions, createSubscription as createDbSub, deleteSubscription as deleteDbSub, toggleSubscriptionAction, updateSubscriptionBilledDate } from '@/app/actions'
 
 export interface Subscription {
   id: string
@@ -64,58 +65,27 @@ interface SubscriptionContextValue {
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null)
 
-const STORAGE_KEY = 'nomos_subscriptions_v1'
-
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { subscriptions: [] })
   const { addTransaction } = useTransactions()
 
-  // Hydrate from localStorage once
+  // Hydrate from DB once
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        dispatch({ type: 'HYDRATE_SUBS', payload: JSON.parse(raw) })
-      } else {
-        // Hydrate with some premium default subscriptions
-        const defaults: Subscription[] = [
-          {
-            id: '1',
-            name: 'Netflix Premium',
-            amount: 186000,
-            type: 'EXPENSE',
-            account: 'Gopay',
-            category: 'Entertainment',
-            billingDate: 15,
-            isActive: true,
-            lastBilledDate: null,
-          },
-          {
-            id: '2',
-            name: 'Spotify Family',
-            amount: 86000,
-            type: 'EXPENSE',
-            account: 'BCA',
-            category: 'Entertainment',
-            billingDate: 25,
-            isActive: true,
-            lastBilledDate: null,
-          },
-        ]
-        dispatch({ type: 'HYDRATE_SUBS', payload: defaults })
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults))
+    async function load() {
+      try {
+        const data = await getSubscriptions()
+        // Format lastBilledDate appropriately
+        const formatted = data.map(s => ({
+          ...s,
+          lastBilledDate: s.lastBilledDate ? new Date(s.lastBilledDate).toISOString() : null
+        }))
+        dispatch({ type: 'HYDRATE_SUBS', payload: formatted as any })
+      } catch (e) {
+        console.error(e)
       }
-    } catch {}
+    }
+    load()
   }, [])
-
-  // Persist changes
-  useEffect(() => {
-    try {
-      if (state.subscriptions.length > 0) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subscriptions))
-      }
-    } catch {}
-  }, [state.subscriptions])
 
   // Cron execution on load: check if active subscriptions are due for billing
   useEffect(() => {
@@ -164,6 +134,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
           icon: <Bell className="h-4 w-4 text-[var(--color-positive)]" />,
           duration: 6000,
         })
+        
+        // DB update
+        updateSubscriptionBilledDate(sub.id, now).catch(console.error)
 
         updated = true
         return {
@@ -183,16 +156,27 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const addSubscription = (sub: Omit<Subscription, 'id' | 'isActive'>): Subscription => {
     const full: Subscription = {
       ...sub,
-      id: crypto.randomUUID(),
+      id: crypto.randomUUID(), // Optimistic ID
       isActive: true,
       lastBilledDate: null,
     }
     dispatch({ type: 'ADD_SUB', payload: full })
+    createDbSub(sub).catch(console.error)
     return full
   }
 
-  const deleteSubscription = (id: string) => dispatch({ type: 'DELETE_SUB', payload: id })
-  const toggleSubscription = (id: string) => dispatch({ type: 'TOGGLE_SUB', payload: id })
+  const deleteSubscription = (id: string) => {
+    dispatch({ type: 'DELETE_SUB', payload: id })
+    deleteDbSub(id).catch(console.error)
+  }
+  
+  const toggleSubscription = (id: string) => {
+    const target = state.subscriptions.find(s => s.id === id)
+    dispatch({ type: 'TOGGLE_SUB', payload: id })
+    if (target) {
+      toggleSubscriptionAction(id, !target.isActive).catch(console.error)
+    }
+  }
   const updateSubscription = (sub: Subscription) => dispatch({ type: 'UPDATE_SUB', payload: sub })
 
   // Calculate upcoming bills (warn 3 days before billingDate)

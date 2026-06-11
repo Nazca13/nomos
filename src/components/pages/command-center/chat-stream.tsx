@@ -4,6 +4,7 @@ import { useChat } from '@ai-sdk/react'
 import { useRef, useEffect, useState } from 'react'
 import { Send, Check, X, ArrowDownLeft, ArrowUpRight, Trash2, RotateCcw, AlertTriangle, Camera, WifiOff, Globe } from 'lucide-react'
 import { toast } from 'sonner'
+import { getChatMessages } from '@/app/actions'
 import { cn, formatCurrency } from '@/lib/utils'
 import { useTransactions } from '@/lib/transaction-store'
 import Image from 'next/image'
@@ -104,7 +105,7 @@ function NomosAvatar({ size = 28 }: { size?: number }) {
       style={{ width: size, height: size }}
     >
       <Image
-        src="/icon-192x192.png"
+        src="/logo1.png"
         alt="NOMOS"
         width={size}
         height={size}
@@ -145,7 +146,7 @@ function DraftField({
   return (
     <div className={cn('flex flex-col gap-[3px]', full && 'col-span-2')}>
       <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--color-tertiary)]">{label}</span>
-      <span className={cn('text-[13px] leading-tight text-white', mono && 'font-financial font-bold tracking-tight')}>
+      <span className={cn('text-[13px] leading-tight text-[var(--color-foreground)]', mono && 'font-financial font-bold tracking-tight')}>
         {value}
       </span>
     </div>
@@ -198,7 +199,7 @@ function DraftCard({
         <div className="flex gap-2">
           <button
             onClick={onConfirm}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-white py-2.5 text-[12px] font-semibold text-black transition-opacity active:opacity-75"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[var(--color-foreground)] py-2.5 text-[12px] font-semibold text-[var(--color-background)] transition-opacity active:opacity-75"
           >
             <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
             Simpan
@@ -258,11 +259,25 @@ export function ChatStream() {
 
     window.addEventListener('online', goOnline)
     window.addEventListener('offline', goOffline)
+    
+    // Load initial chat history from DB
+    getChatMessages().then(data => {
+      if (data && data.length > 0) {
+        // Map Prisma ChatMessage to AI SDK Message type
+        setMessages(data.map(m => ({
+          id: m.id,
+          role: m.role as any,
+          content: m.content,
+          createdAt: new Date(m.createdAt)
+        })))
+      }
+    }).catch(console.error)
+
     return () => {
       window.removeEventListener('online', goOnline)
       window.removeEventListener('offline', goOffline)
     }
-  }, [])
+  }, [setMessages])
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -462,10 +477,10 @@ export function ChatStream() {
         {messages.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-5 px-4 text-center">
             <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-white/[0.04] blur-xl" />
+              <div className="absolute inset-0 rounded-full bg-[var(--color-foreground)]/[0.04] blur-xl" />
               <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
                 <Image
-                  src="/icon-192x192.png"
+                  src="/logo1.png"
                   alt="NOMOS"
                   width={64}
                   height={64}
@@ -476,7 +491,7 @@ export function ChatStream() {
             </div>
 
             <div className="space-y-1.5">
-              <p className="text-[15px] font-semibold tracking-tight text-white">NOMOS AI</p>
+              <p className="text-[15px] font-semibold tracking-tight text-[var(--color-foreground)]">NOMOS AI</p>
               <p className="text-[12px] leading-relaxed text-[var(--color-secondary)]">
                 Catat transaksi dalam bahasa sehari-hari.<br />
                 AI akan mendeteksi dan mengkonfirmasi otomatis.
@@ -520,7 +535,7 @@ export function ChatStream() {
                     <div className={cn(
                       'max-w-[78%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed',
                       isUser
-                        ? 'rounded-br-sm bg-white font-medium text-black'
+                        ? 'rounded-br-sm bg-[var(--color-foreground)] font-medium text-[var(--color-background)]'
                         : isSystemLog
                           ? 'rounded-bl-sm bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-secondary)] font-mono text-[11px]'
                           : 'rounded-bl-sm bg-[var(--color-card)] text-[var(--color-foreground)]'
@@ -607,7 +622,7 @@ export function ChatStream() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading || isScanning}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-secondary)] hover:text-white transition-colors disabled:opacity-40"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-secondary)] hover:text-[var(--color-foreground)] transition-colors disabled:opacity-40"
             aria-label="Kamera OCR"
           >
             <Camera className="h-4 w-4" />
@@ -628,13 +643,13 @@ export function ChatStream() {
             disabled={isLoading || isScanning}
             id="chat-input"
             autoComplete="off"
-            className="flex-1 bg-transparent py-1 text-[13px] text-white placeholder:text-[var(--color-tertiary)] focus:outline-none disabled:opacity-50"
+            className="flex-1 bg-transparent py-1 text-[13px] text-[var(--color-foreground)] placeholder:text-[var(--color-tertiary)] focus:outline-none disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading || isScanning}
             aria-label="Kirim"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-black transition-opacity disabled:opacity-20 active:opacity-75"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[var(--color-foreground)] text-[var(--color-background)] transition-opacity disabled:opacity-20 active:opacity-75"
           >
             <Send className="h-3.5 w-3.5" />
           </button>

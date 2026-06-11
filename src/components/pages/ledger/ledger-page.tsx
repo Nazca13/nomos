@@ -45,7 +45,7 @@ export function LedgerPage() {
         <PageHeader title="Ledger">
           <button
             onClick={() => setShowAdd(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black active:opacity-80"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-foreground)] text-[var(--color-background)] active:opacity-80"
             aria-label="Tambah transaksi"
           >
             <Plus className="h-4 w-4" />
@@ -84,7 +84,7 @@ export function LedgerPage() {
                 transactions.length === 0 ? (
                   <button
                     onClick={() => setShowAdd(true)}
-                    className="rounded-xl bg-white px-4 py-2 text-[12px] font-bold text-black"
+                    className="rounded-xl bg-[var(--color-foreground)] px-4 py-2 text-[12px] font-bold text-[var(--color-background)]"
                   >
                     + Tambah Pertama
                   </button>

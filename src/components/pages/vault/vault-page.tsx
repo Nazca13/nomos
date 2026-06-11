@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Trash2, ToggleLeft, ToggleRight, Landmark, Sparkles } from 'lucide-react'
 import { useTransactions } from '@/lib/transaction-store'
 import { useSubscriptions, type Subscription } from '@/lib/subscription-store'
+import { getVaultAssets, createVaultAsset as createDbAsset, deleteVaultAsset as deleteDbAsset } from '@/app/actions'
 import { cn, formatCurrency } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -31,29 +32,18 @@ export function VaultPage() {
   const [subCategory, setSubCategory] = useState('Entertainment')
   const [subBillingDate, setSubBillingDate] = useState('1')
 
-  // Hydrate custom assets from localStorage
+  // Hydrate custom assets from DB
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('nomos_vault_assets_v1')
-      if (raw) {
-        setAssets(JSON.parse(raw))
-      } else {
-        const defaults: CustomAsset[] = [
-          { id: '1', name: 'Logam Mulia Antam 10g', type: 'Emas', value: 14500000 },
-          { id: '2', name: 'Ethereum Portfolio', type: 'Crypto', value: 8750000 },
-          { id: '3', name: 'Reksadana Saham', type: 'Reksadana', value: 5000000 },
-        ]
-        setAssets(defaults)
-        localStorage.setItem('nomos_vault_assets_v1', JSON.stringify(defaults))
+    async function fetchAssets() {
+      try {
+        const data = await getVaultAssets()
+        setAssets(data as CustomAsset[])
+      } catch (e) {
+        console.error(e)
       }
-    } catch {}
+    }
+    fetchAssets()
   }, [])
-
-  // Persist assets
-  const saveAssets = (newAssets: CustomAsset[]) => {
-    setAssets(newAssets)
-    localStorage.setItem('nomos_vault_assets_v1', JSON.stringify(newAssets))
-  }
 
   // Add Custom Asset
   const handleAddAsset = (e: React.FormEvent) => {
@@ -71,7 +61,8 @@ export function VaultPage() {
     }
 
     const next = [...assets, newAsset]
-    saveAssets(next)
+    setAssets(next)
+    createDbAsset({ name: assetName, type: assetType, value: val }).catch(console.error)
     setAssetName('')
     setAssetValue('')
     setShowAddAsset(false)
@@ -81,7 +72,8 @@ export function VaultPage() {
   // Delete Custom Asset
   const handleDeleteAsset = (id: string) => {
     const next = assets.filter((a) => a.id !== id)
-    saveAssets(next)
+    setAssets(next)
+    deleteDbAsset(id).catch(console.error)
     toast('Aset dihapus dari Vault')
   }
 
@@ -153,23 +145,23 @@ export function VaultPage() {
       {/* Header */}
       <div>
         <p className="text-[12px] text-[var(--color-secondary)]">Net Worth Vault</p>
-        <h1 className="text-[20px] font-bold tracking-tight text-white">The Vault</h1>
+        <h1 className="text-[20px] font-bold tracking-tight text-[var(--color-foreground)]">The Vault</h1>
       </div>
 
       {/* Net Worth Core Card */}
       <div className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-foreground)]/[0.01] to-transparent pointer-events-none" />
         <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-tertiary)] mb-1">
           <Landmark className="h-3.5 w-3.5" />
           Kekayaan Bersih (Net Worth)
         </div>
-        <p className="font-financial text-[28px] font-bold text-white tracking-tight leading-none mb-3">
+        <p className="font-financial text-[28px] font-bold text-[var(--color-foreground)] tracking-tight leading-none mb-3">
           {formatCurrency(netWorth)}
         </p>
         
         {/* Simple allocation bar */}
-        <div className="h-2 w-full rounded-full bg-white/[0.04] overflow-hidden flex gap-[2px] mb-2">
-          {liquidPercent > 0 && <div className="bg-white h-full" style={{ width: `${liquidPercent}%` }} />}
+        <div className="h-2 w-full rounded-full bg-[var(--color-foreground)]/[0.04] overflow-hidden flex gap-[2px] mb-2">
+          {liquidPercent > 0 && <div className="bg-[var(--color-foreground)] h-full" style={{ width: `${liquidPercent}%` }} />}
           {emasPercent > 0 && <div className="bg-amber-400 h-full" style={{ width: `${emasPercent}%` }} />}
           {cryptoPercent > 0 && <div className="bg-purple-500 h-full" style={{ width: `${cryptoPercent}%` }} />}
           {reksaPercent > 0 && <div className="bg-emerald-400 h-full" style={{ width: `${reksaPercent}%` }} />}
@@ -179,7 +171,7 @@ export function VaultPage() {
         {/* Legend */}
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3 text-[10px] text-[var(--color-secondary)] font-medium">
           <div className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-white" />
+            <span className="h-2 w-2 rounded-full bg-[var(--color-foreground)]" />
             Cash ({liquidPercent.toFixed(0)}%)
           </div>
           {emasPercent > 0 && (
@@ -209,7 +201,7 @@ export function VaultPage() {
           ? 'border-[var(--color-negative)]/20 bg-[var(--color-negative)]/5 text-[var(--color-negative)]'
           : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-secondary)]'
       }`}>
-        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider mb-1.5 text-white">
+        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider mb-1.5 text-[var(--color-foreground)]">
           <Sparkles className="h-3.5 w-3.5 text-yellow-400" />
           AI Portfolio Advisor
         </div>
@@ -219,10 +211,10 @@ export function VaultPage() {
       {/* Custom Assets List */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[13px] font-semibold text-white">Daftar Aset Vault</h2>
+          <h2 className="text-[13px] font-semibold text-[var(--color-foreground)]">Daftar Aset Vault</h2>
           <button
             onClick={() => setShowAddAsset(!showAddAsset)}
-            className="flex items-center gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-1 text-[10px] font-semibold text-white hover:bg-[var(--color-card-hover)]"
+            className="flex items-center gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-1 text-[10px] font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-card-hover)]"
           >
             <Plus className="h-3 w-3" /> Tambah
           </button>
@@ -238,12 +230,12 @@ export function VaultPage() {
                 value={assetName}
                 onChange={(e) => setAssetName(e.target.value)}
                 required
-                className="rounded-lg border border-[var(--color-border)] bg-black px-2.5 py-1.5 text-[12px] text-white focus:outline-none focus:border-white"
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-[12px] text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-border-hover)]"
               />
               <select
                 value={assetType}
                 onChange={(e) => setAssetType(e.target.value as any)}
-                className="rounded-lg border border-[var(--color-border)] bg-black px-2.5 py-1.5 text-[12px] text-white focus:outline-none"
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-[12px] text-[var(--color-foreground)] focus:outline-none"
               >
                 <option value="Emas">Emas</option>
                 <option value="Crypto">Crypto</option>
@@ -259,11 +251,11 @@ export function VaultPage() {
                 value={assetValue}
                 onChange={(e) => setAssetValue(e.target.value)}
                 required
-                className="flex-1 rounded-lg border border-[var(--color-border)] bg-black px-2.5 py-1.5 text-[12px] text-white focus:outline-none focus:border-white"
+                className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-[12px] text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-border-hover)]"
               />
               <button
                 type="submit"
-                className="rounded-lg bg-white px-4 text-[12px] font-bold text-black"
+                className="rounded-lg bg-[var(--color-foreground)] px-4 text-[12px] font-bold text-[var(--color-background)]"
               >
                 Simpan
               </button>
@@ -272,12 +264,12 @@ export function VaultPage() {
         )}
 
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between rounded-xl bg-white/[0.02] p-3 text-[13px] border border-white/[0.04]">
+          <div className="flex items-center justify-between rounded-xl bg-[var(--color-foreground)]/[0.02] p-3 text-[13px] border border-[var(--color-border)]">
             <div className="flex items-center gap-2.5">
-              <div className="h-2 w-2 rounded-full bg-white" />
-              <span className="font-medium">Likuiditas (Cash Ledger)</span>
+              <div className="h-2 w-2 rounded-full bg-[var(--color-foreground)]" />
+              <span className="font-medium text-[var(--color-foreground)]">Likuiditas (Cash Ledger)</span>
             </div>
-            <span className="font-financial font-bold text-white">{formatCurrency(totalBalance)}</span>
+            <span className="font-financial font-bold text-[var(--color-foreground)]">{formatCurrency(totalBalance)}</span>
           </div>
 
           {assets.map((asset) => (
@@ -289,12 +281,12 @@ export function VaultPage() {
                   asset.type === 'Reksadana' ? 'bg-emerald-400' : 'bg-blue-400'
                 }`} />
                 <div className="flex flex-col">
-                  <span className="font-medium text-white">{asset.name}</span>
+                  <span className="font-medium text-[var(--color-foreground)]">{asset.name}</span>
                   <span className="text-[9px] uppercase tracking-wider text-[var(--color-tertiary)]">{asset.type}</span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-financial font-bold text-white">{formatCurrency(asset.value)}</span>
+                <span className="font-financial font-bold text-[var(--color-foreground)]">{formatCurrency(asset.value)}</span>
                 <button
                   onClick={() => handleDeleteAsset(asset.id)}
                   className="text-[var(--color-tertiary)] hover:text-[var(--color-negative)] transition-colors"
@@ -310,10 +302,10 @@ export function VaultPage() {
       {/* Subscription Manager */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[13px] font-semibold text-white">Tagihan Rutin</h2>
+          <h2 className="text-[13px] font-semibold text-[var(--color-foreground)]">Tagihan Rutin</h2>
           <button
             onClick={() => setShowAddSub(!showAddSub)}
-            className="flex items-center gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-1 text-[10px] font-semibold text-white hover:bg-[var(--color-card-hover)]"
+            className="flex items-center gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-1 text-[10px] font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-card-hover)]"
           >
             <Plus className="h-3 w-3" /> Tambah
           </button>
@@ -329,7 +321,7 @@ export function VaultPage() {
                 value={subName}
                 onChange={(e) => setSubName(e.target.value)}
                 required
-                className="rounded-lg border border-[var(--color-border)] bg-black px-2.5 py-1.5 text-[12px] text-white focus:outline-none"
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-[12px] text-[var(--color-foreground)] focus:outline-none"
               />
               <input
                 type="text"
@@ -337,14 +329,14 @@ export function VaultPage() {
                 value={subAmount}
                 onChange={(e) => setSubAmount(e.target.value)}
                 required
-                className="rounded-lg border border-[var(--color-border)] bg-black px-2.5 py-1.5 text-[12px] text-white focus:outline-none"
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-[12px] text-[var(--color-foreground)] focus:outline-none"
               />
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <select
                 value={subAccount}
                 onChange={(e) => setSubAccount(e.target.value)}
-                className="rounded-lg border border-[var(--color-border)] bg-black px-1.5 py-1.5 text-[11px] text-white focus:outline-none"
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-2 text-[12px] text-[var(--color-foreground)] focus:outline-none"
               >
                 <option value="Gopay">Gopay</option>
                 <option value="BCA">BCA</option>
@@ -354,27 +346,31 @@ export function VaultPage() {
               <select
                 value={subCategory}
                 onChange={(e) => setSubCategory(e.target.value)}
-                className="rounded-lg border border-[var(--color-border)] bg-black px-1.5 py-1.5 text-[11px] text-white focus:outline-none"
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-2 text-[12px] text-[var(--color-foreground)] focus:outline-none"
               >
                 <option value="Entertainment">Hiburan</option>
                 <option value="Utilities">Utilitas</option>
                 <option value="Food">Makanan</option>
                 <option value="Other">Lainnya</option>
               </select>
+            </div>
+            
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5">
+              <span className="text-[12px] text-[var(--color-secondary)] whitespace-nowrap">Jatuh Tempo: Tgl</span>
               <input
                 type="number"
-                placeholder="Tgl (1-31)"
+                placeholder="1-31"
                 min="1"
                 max="31"
                 value={subBillingDate}
                 onChange={(e) => setSubBillingDate(e.target.value)}
                 required
-                className="rounded-lg border border-[var(--color-border)] bg-black px-1.5 py-1.5 text-[11px] text-white focus:outline-none"
+                className="w-full bg-transparent text-[12px] text-[var(--color-foreground)] focus:outline-none font-bold"
               />
             </div>
             <button
               type="submit"
-              className="w-full rounded-lg bg-white py-1.5 text-[12px] font-bold text-black"
+              className="w-full rounded-lg bg-[var(--color-foreground)] py-1.5 text-[12px] font-bold text-[var(--color-background)]"
             >
               Buat Tagihan
             </button>
@@ -387,7 +383,7 @@ export function VaultPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => toggleSubscription(sub.id)}
-                  className="text-[var(--color-secondary)] hover:text-white"
+                  className="text-[var(--color-secondary)] hover:text-[var(--color-foreground)]"
                 >
                   {sub.isActive ? (
                     <ToggleRight className="h-7 w-7 text-emerald-400" />
@@ -396,14 +392,14 @@ export function VaultPage() {
                   )}
                 </button>
                 <div className="flex flex-col">
-                  <span className={cn('font-medium text-white', !sub.isActive && 'line-through text-[var(--color-tertiary)]')}>{sub.name}</span>
+                  <span className={cn('font-medium text-[var(--color-foreground)]', !sub.isActive && 'line-through text-[var(--color-tertiary)]')}>{sub.name}</span>
                   <span className="text-[9px] uppercase tracking-wider text-[var(--color-tertiary)]">
                     Tiap tanggal {sub.billingDate} via {sub.account}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-financial font-bold text-white">{formatCurrency(sub.amount)}</span>
+                <span className="font-financial font-bold text-[var(--color-foreground)]">{formatCurrency(sub.amount)}</span>
                 <button
                   onClick={() => deleteSubscription(sub.id)}
                   className="text-[var(--color-tertiary)] hover:text-[var(--color-negative)] transition-colors"

@@ -24,7 +24,7 @@ export function TransactionTable({ data, onRowClick }: TransactionTableProps) {
           {/* Icon */}
           <div
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              tx.type === 'INCOME' ? 'bg-[var(--color-positive)]/10' : 'bg-white/[0.04]'
+              tx.type === 'INCOME' ? 'bg-[var(--color-positive)]/10' : 'bg-[var(--color-foreground)]/[0.04]'
             }`}
           >
             {tx.type === 'INCOME' ? (
@@ -36,7 +36,7 @@ export function TransactionTable({ data, onRowClick }: TransactionTableProps) {
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <p className="truncate text-[13px] font-medium text-white">{tx.description}</p>
+            <p className="truncate text-[13px] font-medium text-[var(--color-foreground)]">{tx.description}</p>
             <div className="mt-0.5 flex items-center gap-1.5">
               <span className="text-[10px] text-[var(--color-tertiary)]">{tx.category}</span>
               <span className="text-[10px] text-[var(--color-quaternary)]">·</span>

@@ -1,9 +1,7 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
 
-// Edge-compatible singleton pattern — reuses the client across hot-reloads in
-// development and avoids exhausting the PostgreSQL connection pool in serverless
-// environments (see Requirement 15.2, 15.3).
+// Singleton pattern — reuses the client across hot-reloads in development
+// and avoids exhausting the Supabase PostgreSQL connection pool.
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
 function createPrismaClient(): PrismaClient {
@@ -12,9 +10,7 @@ function createPrismaClient(): PrismaClient {
     throw new Error('DATABASE_URL environment variable is not set')
   }
 
-  
-  const adapter = new PrismaPg(connectionString)
-  return new PrismaClient({ adapter })
+  return new PrismaClient()
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()

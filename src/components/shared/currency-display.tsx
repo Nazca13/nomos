@@ -21,7 +21,7 @@ export function CurrencyDisplay({ amount, type = 'neutral', showSign = false, si
       sizeMap[size],
       type === 'income' && 'text-positive',
       type === 'expense' && 'text-negative',
-      type === 'neutral' && 'text-white',
+      type === 'neutral' && 'text-[var(--color-foreground)]',
       className
     )}>
       {prefix}{formatted}
